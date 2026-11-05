@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body { background-color: #f4f5f7; }
+
+::-webkit-scrollbar { height: 6px; width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Hide admin controls in client (view-only) mode */
+.client-mode .admin-only { display: none !important; }
+
+/* Editable indicators in Admin mode */
+.admin-mode [contenteditable="true"]:hover {
+  outline: 2px dashed #ef4444;
+  outline-offset: 2px;
+  border-radius: 4px;
+  background-color: rgba(254, 242, 242, 0.6);
+  cursor: text;
+}
+.admin-mode [contenteditable="true"]:focus {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+  border-radius: 4px;
+  background-color: #ffffff;
+}
+.drag-handle { cursor: grab; }
+.drag-handle:active { cursor: grabbing; }
+.sortable-ghost { opacity: 0.4; border: 2px dashed #ef4444 !important; }
+.preline { white-space: pre-line; }

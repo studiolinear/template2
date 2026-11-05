@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Dashboard – HEADCHANGE | Studio Linear</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col pb-12 client-mode" id="appBody">
+
+  <!-- HEADER -->
+  <header class="bg-brand text-white shadow-md relative z-20">
+    <div class="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight uppercase" data-edit="meta" data-key="dashTitle"></h1>
+          <span id="viewModeBadge" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-400 text-slate-900 shadow-sm">CLIENT VIEW MODE</span>
+        </div>
+        <p class="text-xs sm:text-sm text-red-100 mt-0.5 font-medium">
+          PROJECT NAME: <span class="font-bold text-white tracking-wide" data-edit="meta" data-key="projectName"></span>
+          &nbsp;|&nbsp; LAST UPDATED: <span class="font-semibold text-white" data-edit="meta" data-key="lastUpdated"></span>
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="bg-red-700/60 p-1.5 rounded-lg flex items-center gap-2 border border-red-400/40 text-xs">
+          <button data-action="set-mode" data-mode="admin" id="btnAdminMode" class="px-2.5 py-1 rounded-md font-bold text-white"><i data-lucide="edit-3" class="w-3.5 h-3.5 inline mr-1"></i> Admin (Edit)</button>
+          <button data-action="set-mode" data-mode="client" id="btnClientMode" class="px-2.5 py-1 rounded-md font-bold text-white"><i data-lucide="eye" class="w-3.5 h-3.5 inline mr-1"></i> Client (View Only)</button>
+          <button data-action="copy-link" data-kind="client" class="px-2 py-1 bg-red-800 hover:bg-red-900 rounded font-semibold text-white transition flex items-center gap-1" title="Copy the shareable client link"><i data-lucide="link" class="w-3.5 h-3.5"></i> Copy Client Link</button>
+          <button data-action="copy-link" data-kind="admin" class="px-2 py-1 bg-red-800 hover:bg-red-900 rounded font-semibold text-white transition admin-only" title="Copy the admin link (needs the admin token)">Admin Link</button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button data-action="open-modal" data-id="templateLibraryModal" class="bg-white/10 hover:bg-white/20 border border-white/30 text-white text-xs font-semibold px-3 py-2 rounded shadow transition flex items-center gap-1.5 admin-only"><i data-lucide="library" class="w-4 h-4"></i><span>Intake Library</span></button>
+          <button data-action="open-modal" data-id="actionModal" class="bg-white text-brand-600 hover:bg-red-50 text-xs font-semibold px-3 py-2 rounded shadow transition flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i><span>Client Actions</span></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-[1550px] w-full mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6 flex-1">
+
+    <!-- KPI CARDS (drag to reorder in Admin mode) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4" id="kpiCardsContainer">
+      <div data-card-id="card-status" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between relative">
+        <div class="drag-handle absolute top-2 right-2 text-slate-300 hover:text-slate-600 admin-only p-1"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Project Status</span>
+          <p class="text-xs text-slate-500 font-medium">CURRENT PHASE:</p>
+          <h2 class="text-base font-bold text-slate-900 leading-tight mb-2" data-edit="meta" data-key="currentPhase"></h2>
+        </div>
+        <div class="my-3">
+          <div class="flex justify-between items-baseline mb-1">
+            <span class="text-3xl font-black text-brand-600" id="overallPercentageText">0%</span>
+            <span class="text-xs text-slate-500 font-medium">Project Progress</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden"><div id="overallProgressBar" class="bg-brand h-full rounded-full transition-all duration-500" style="width:0%"></div></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
+          <div><span class="text-slate-400 font-medium block">START DATE</span><span class="font-bold text-slate-700" data-edit="meta" data-key="startDate"></span></div>
+          <div><span class="text-slate-400 font-medium block">TARGET END</span><span class="font-bold text-slate-700" data-edit="meta" data-key="endDate"></span></div>
+        </div>
+      </div>
+
+      <div data-card-id="card-phases" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between relative">
+        <div class="drag-handle absolute top-2 right-2 text-slate-300 hover:text-slate-600 admin-only p-1"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Phases</span>
+            <span class="text-[10px] text-slate-400 pr-6">Click to view scope</span>
+          </div>
+          <ul class="space-y-1.5 text-xs max-h-[160px] overflow-y-auto" id="phasesMiniList"></ul>
+        </div>
+        <button data-action="add-package" class="w-full mt-2 text-center text-xs py-1 border border-dashed border-slate-300 hover:border-brand font-semibold text-brand rounded transition admin-only">+ Add New Package</button>
+      </div>
+
+      <div data-card-id="card-glance" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between relative">
+        <div class="drag-handle absolute top-2 right-2 text-slate-300 hover:text-slate-600 admin-only p-1"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">At a Glance</span>
+          <div class="space-y-2.5" id="atAGlanceCounts"></div>
+        </div>
+        <p class="text-[10px] text-slate-400 italic mt-3 pt-2 border-t border-slate-100">Counts update automatically from the scope checklists.</p>
+      </div>
+
+      <div data-card-id="card-thisweek" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative">
+        <div class="drag-handle absolute top-2 right-2 text-slate-300 hover:text-slate-600 admin-only p-1"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">This Week</span>
+        <span class="text-xs font-bold text-brand-600 mb-2 block" data-edit="meta" data-key="thisWeekRange"></span>
+        <div class="text-xs text-slate-600 mb-3 preline" data-edit="meta" data-key="thisWeekItems"></div>
+        <span class="text-[11px] font-bold text-brand-600 uppercase tracking-wider block mb-1">Upcoming Milestones</span>
+        <div class="text-xs text-brand-600 font-medium preline" data-edit="meta" data-key="milestones"></div>
+      </div>
+
+      <div data-card-id="card-waiting" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between relative">
+        <div class="drag-handle absolute top-2 right-2 text-slate-300 hover:text-slate-600 admin-only p-1"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <div>
+          <span class="text-xs font-bold text-brand-600 uppercase tracking-wider mb-2 flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Waiting on Client</span>
+          <ul class="text-xs space-y-2" id="waitingOnClientList"></ul>
+        </div>
+        <div class="mt-3 space-y-1">
+          <button data-action="add-waiting" class="w-full text-center text-xs py-1 border border-dashed border-amber-300 hover:bg-amber-50 font-semibold text-amber-800 rounded transition admin-only">+ Add Action Item</button>
+          <button data-action="open-modal" data-id="actionModal" class="w-full text-center text-xs py-1.5 bg-slate-100 hover:bg-slate-200 font-semibold text-slate-700 rounded transition">+ Submit Deliverable</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW: IN-PROGRESS PACKAGES — SCOPE OF WORK -->
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden" id="sectionInProgress">
+      <div class="p-4 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+          <i data-lucide="list-checks" class="w-5 h-5 text-brand"></i> In-progress packages: scope of work
+          <span id="inProgressCount" class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
+        </h2>
+        <span class="text-xs text-slate-500">Every deliverable for packages currently underway.</span>
+      </div>
+      <div id="inProgressGrid" class="p-4 grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- MASTER TIMELINE -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden" id="sectionTimeline">
+      <div class="p-4 border-b border-slate-200 flex flex-wrap justify-between items-center gap-3 bg-slate-50">
+        <div class="flex items-center gap-3">
+          <h2 class="text-lg font-bold text-slate-900 tracking-tight uppercase flex items-center gap-2"><i data-lucide="calendar" class="w-5 h-5 text-brand"></i> Master Timeline</h2>
+          <span class="bg-brand-50 text-brand-700 text-xs font-bold px-2.5 py-0.5 rounded-full border border-brand-200 flex items-center gap-1">
+            Current Week: W<input type="number" id="currentWeekInput" min="1" data-change="set-week" class="w-12 bg-transparent font-black text-brand-600 text-center border-b border-brand focus:outline-none" />
+          </span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 text-xs admin-only">
+          <button data-action="add-month" class="px-2.5 py-1 bg-white border border-slate-300 rounded font-semibold hover:border-brand transition text-slate-700">+ Add Month</button>
+          <button data-action="add-week" class="px-2.5 py-1 bg-brand text-white rounded font-bold shadow hover:bg-brand-600 transition">+ Add Week Column</button>
+          <button data-action="remove-week" class="px-2.5 py-1 bg-slate-100 text-slate-600 border border-slate-200 rounded font-semibold hover:bg-slate-200 transition">- Remove Week Column</button>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 text-xs">
+          <button data-action="filter" data-filter="all" class="px-2.5 py-1 rounded-md border border-slate-300 font-semibold ring-brand">All</button>
+          <button data-action="filter" data-filter="completed" class="flex items-center gap-1.5 px-2 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium ring-brand"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> COMPLETED</button>
+          <button data-action="filter" data-filter="in-progress" class="flex items-center gap-1.5 px-2 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200 font-medium ring-brand"><span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> IN PROGRESS</button>
+          <button data-action="filter" data-filter="waiting" class="flex items-center gap-1.5 px-2 py-1 rounded bg-amber-50 text-amber-700 border border-amber-200 font-medium ring-brand"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> WAITING ON CLIENT</button>
+          <button data-action="filter" data-filter="upcoming" class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200 font-medium ring-brand"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> UPCOMING</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto relative"><div id="ganttContainer"></div></div>
+      <div class="p-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 flex flex-wrap justify-between items-center gap-2">
+        <span>Click a package bar to open its scope checklist.</span>
+        <span class="font-medium text-slate-600">The red dashed line marks the current week.</span>
+      </div>
+    </div>
+
+    <!-- PACKAGE DETAIL -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden" id="detailedSection">
+      <div class="border-b border-slate-200 bg-slate-50 p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="flex items-center gap-3">
+          <span class="w-3 h-8 bg-brand rounded-r-md"></span>
+          <div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Package Scope & Deliverables</span>
+            <div class="flex items-center gap-3">
+              <h2 class="text-xl font-extrabold text-slate-900 uppercase" id="selectedPackageTitle" data-edit="pkg-title"></h2>
+              <span id="selectedPackageBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-700"></span>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <label for="packageSelect" class="text-xs font-semibold text-slate-500">Select Package:</label>
+          <select id="packageSelect" data-change="switch-package" class="text-xs bg-white border border-slate-300 font-medium text-slate-800 py-1.5 px-3 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand"></select>
+          <button data-action="remove-package" class="admin-only text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg text-slate-500 hover:text-red-600 hover:border-red-300 font-semibold">Delete package</button>
+        </div>
+      </div>
+
+      <div class="flex border-b border-slate-200 bg-white px-4 pt-2 gap-4 text-xs font-bold overflow-x-auto">
+        <button data-action="tab" data-tab="scope" id="tab-scope" class="py-2.5 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="check-square" class="w-4 h-4"></i> Scope Checklist & Deliverables</button>
+        <button data-action="tab" data-tab="overview" id="tab-overview" class="py-2.5 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="table" class="w-4 h-4"></i> Weekly Breakdown</button>
+        <button data-action="tab" data-tab="assets" id="tab-assets" class="py-2.5 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="folder-down" class="w-4 h-4"></i> Assets & Files</button>
+        <button data-action="tab" data-tab="intake" id="tab-intake" class="py-2.5 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="file-text" class="w-4 h-4"></i> Package Intake Form</button>
+      </div>
+
+      <div id="content-scope" class="p-6">
+        <div class="max-w-4xl">
+          <div class="flex justify-between items-center mb-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">Scope deliverable checklist</h3>
+              <p class="text-xs text-slate-500">Completion updates as items are checked.</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <button data-action="add-scope" class="px-3 py-1.5 bg-brand text-white text-xs font-bold rounded shadow hover:bg-brand-600 transition admin-only flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Scope Item</button>
+              <div class="text-right"><span class="text-2xl font-black text-brand" id="pkgChecklistPercent">0%</span><span class="text-xs text-slate-500 block">Completion</span></div>
+            </div>
+          </div>
+          <div id="checklistItemsContainer" class="space-y-3"></div>
+        </div>
+      </div>
+
+      <div id="content-overview" class="p-4 sm:p-6 hidden overflow-x-auto">
+        <div class="flex justify-between items-center mb-3">
+          <span class="text-xs text-slate-500">Weekly schedule for this package.</span>
+          <button data-action="add-weekly" class="px-3 py-1 bg-brand text-white text-xs font-bold rounded shadow hover:bg-brand-600 transition admin-only">+ Add Roadmap Row</button>
+        </div>
+        <table class="w-full text-left border-collapse min-w-[750px]">
+          <thead>
+            <tr class="bg-brand text-white text-xs font-bold uppercase">
+              <th class="p-3 w-20">WEEK</th><th class="p-3">OUR WORK</th><th class="p-3">CLIENT NEEDS TO PROVIDE</th><th class="p-3">MILESTONE / REVIEW</th><th class="p-3 w-28">FILES</th><th class="p-3">NOTES</th><th class="p-3 w-12 text-center admin-only">ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="weeklyTableBody" class="text-xs divide-y divide-slate-200"></tbody>
+        </table>
+      </div>
+
+      <div id="content-assets" class="p-6 hidden">
+        <div class="flex justify-between items-center mb-4">
+          <span class="text-xs text-slate-500">Deliverables and client-accessible files.</span>
+          <button data-action="add-asset" class="px-3 py-1 bg-brand text-white text-xs font-bold rounded shadow hover:bg-brand-600 transition admin-only">+ Add Asset File</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="assetsGrid"></div>
+      </div>
+
+      <div id="content-intake" class="p-6 hidden max-w-4xl">
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-5">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 mb-4 border-b border-slate-200">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Package intake form & requirements</h3>
+              <p class="text-xs text-slate-500">Pick the intake template for this package.</p>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <label for="templateSelector" class="text-xs font-bold text-slate-600 whitespace-nowrap">Template:</label>
+              <select id="templateSelector" data-change="assign-template" class="text-xs bg-white border border-slate-300 font-semibold text-slate-800 py-1.5 px-3 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand w-full sm:w-auto"></select>
+            </div>
+          </div>
+          <div id="intakeFormContainer" class="space-y-4"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- SCOPE DRAWER -->
+  <div id="scopeDrawer" class="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out border-l border-slate-200 flex flex-col">
+    <div class="p-4 bg-brand text-white flex justify-between items-center">
+      <div>
+        <span class="text-[10px] font-bold text-red-200 uppercase tracking-wider block">Scope Checklist</span>
+        <h3 class="text-lg font-extrabold leading-tight uppercase" id="drawerTitle"></h3>
+      </div>
+      <button data-action="close-drawer" class="p-1 hover:bg-brand-600 rounded text-white transition" aria-label="Close"><i data-lucide="x" class="w-6 h-6"></i></button>
+    </div>
+    <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-xs">
+      <div><span class="text-slate-500 font-medium">Status:</span><span id="drawerStatusBadge" class="font-bold ml-1 px-2 py-0.5 rounded text-[11px]"></span></div>
+      <div><span class="text-slate-500 font-medium">Progress:</span><span id="drawerProgressText" class="font-bold text-brand-600 ml-1">0%</span></div>
+    </div>
+    <div class="p-5 flex-1 overflow-y-auto space-y-4" id="drawerChecklistContainer"></div>
+    <div class="p-4 bg-slate-100 border-t border-slate-200 flex gap-2">
+      <button id="drawerOpenDetails" data-action="open-details" class="flex-1 bg-brand text-white font-bold py-2 px-3 rounded text-xs hover:bg-brand-600 transition text-center">Open Full Package Details</button>
+    </div>
+  </div>
+  <div id="drawerOverlay" data-action="close-drawer" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden"></div>
+
+  <!-- INTAKE LIBRARY MODAL -->
+  <div id="templateLibraryModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-200 max-h-[90vh] flex flex-col">
+      <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+        <h3 class="font-bold text-base flex items-center gap-2"><i data-lucide="library" class="w-5 h-5 text-brand"></i> Intake form templates</h3>
+        <button data-action="close-modal" data-id="templateLibraryModal" class="text-white hover:text-slate-200" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 flex-1 overflow-y-auto space-y-4 text-xs">
+        <p class="text-slate-600">Templates can be assigned to any package from its Intake tab.</p>
+        <div id="templatesList" class="space-y-3"></div>
+        <button data-action="add-template" class="w-full py-2 bg-slate-100 border border-dashed border-slate-300 hover:bg-slate-200 text-slate-700 font-bold rounded admin-only">+ Create New Intake Form Template</button>
+      </div>
+      <div class="p-4 bg-slate-100 border-t border-slate-200 text-right">
+        <button data-action="close-modal" data-id="templateLibraryModal" class="px-4 py-2 bg-slate-800 text-white font-bold rounded text-xs">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENT ACTIONS MODAL -->
+  <div id="actionModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200">
+      <div class="p-4 bg-brand text-white flex justify-between items-center">
+        <h3 class="font-bold text-base flex items-center gap-2"><i data-lucide="send" class="w-4 h-4"></i> Client portal action</h3>
+        <button data-action="close-modal" data-id="actionModal" class="text-white hover:text-slate-200" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="actionForm" class="p-5 text-xs space-y-4">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1" for="actionType">Action type</label>
+          <select id="actionType" name="actionType" class="w-full border border-slate-300 rounded p-2 focus:ring-2 focus:ring-brand outline-none">
+            <option value="upload">Upload deliverable / feedback</option>
+            <option value="approve">Approve milestone / deck</option>
+            <option value="request">Request revisions or scope change</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1" for="actionPackage">Package</label>
+          <select id="actionPackage" name="actionPackage" class="w-full border border-slate-300 rounded p-2 focus:ring-2 focus:ring-brand outline-none"></select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1" for="actionMessage">Details & message</label>
+          <textarea id="actionMessage" name="message" required placeholder="Add notes, a Google Drive/Dropbox link, or approval details" class="w-full border border-slate-300 rounded p-2 h-24 focus:ring-2 focus:ring-brand outline-none"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-action="close-modal" data-id="actionModal" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-brand hover:bg-brand-600 text-white font-bold rounded shadow">Send to Studio Linear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-4 right-4 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-xl text-xs font-semibold flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50" role="status">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i><span id="toastMsg"></span>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

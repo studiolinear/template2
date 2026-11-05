@@ -1,0 +1,6 @@
+# Railway uses Nixpacks. These settings are explicit versions of its Node defaults.
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npm start"
