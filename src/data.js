@@ -29,43 +29,63 @@ export const defaultWaiting = [
   { id: 'w2', title: 'Packaging Copy Feedback' },
 ];
 
+// Intake form templates: sections -> questions.
+// question.type: text | textarea | dropdown | radio | checkbox | date
+const q = (id, type, label, o = {}) => ({ id, type, label, required: !!o.required, options: o.options || [] });
+
 export const defaultTemplates = [
   {
     id: 'tmpl-1',
     title: 'Brand Strategy Discovery Homework',
     description: 'Core brand positioning, vision, target audience demographics, and brand values.',
-    fields: [
-      { label: 'Company Overview & Elevator Pitch', value: 'HEADCHANGE is a modern wellness and performance brand.' },
-      { label: 'Primary Target Audience', value: 'Active professionals aged 25-45 looking for premium daily routines.' },
-      { label: 'Top 3 Competitors', value: '1. Brand X, 2. Brand Y, 3. Studio Z' },
+    sections: [
+      { id: 't1-s1', title: 'About your company', description: 'Tell us who you are.', questions: [
+        q('t1-q1', 'textarea', 'Company overview & elevator pitch', { required: true }),
+        q('t1-q2', 'textarea', 'Primary target audience'),
+        q('t1-q3', 'dropdown', 'Where is the brand in its life?', { options: ['Pre-launch', 'Launched < 1 year', 'Established'] }),
+      ] },
+      { id: 't1-s2', title: 'Positioning', description: '', questions: [
+        q('t1-q4', 'textarea', 'Top 3 competitors'),
+        q('t1-q5', 'checkbox', 'Which words describe the brand?', { options: ['Bold', 'Playful', 'Premium', 'Minimal', 'Scientific'] }),
+      ] },
     ],
   },
   {
     id: 'tmpl-2',
     title: 'Packaging & Print Specs Form',
     description: 'Box dimensions, materials, barcode placements, and compliance copy.',
-    fields: [
-      { label: 'Box Dimensions (LxWxH)', value: '120mm x 80mm x 45mm' },
-      { label: 'Print Materials & Finish', value: 'Matte recyclable cardboard with spot UV logo accent' },
-      { label: 'Regulatory Copy / Warnings', value: 'Include standard FDA disclaimer on back panel.' },
+    sections: [
+      { id: 't2-s1', title: 'Specs', description: '', questions: [
+        q('t2-q1', 'text', 'Box dimensions (L x W x H)', { required: true }),
+        q('t2-q2', 'dropdown', 'Print finish', { options: ['Matte', 'Gloss', 'Soft-touch', 'Spot UV accent'] }),
+        q('t2-q3', 'radio', 'Recyclable materials required?', { options: ['Yes', 'No'] }),
+      ] },
+      { id: 't2-s2', title: 'Compliance', description: '', questions: [
+        q('t2-q4', 'textarea', 'Regulatory copy / warnings'),
+      ] },
     ],
   },
   {
     id: 'tmpl-3',
     title: 'E-Commerce & Website Brief',
     description: 'Platform preference, site structure, key integrations, and payment gateways.',
-    fields: [
-      { label: 'CMS / E-Commerce Platform', value: 'Shopify Plus' },
-      { label: 'Key Features Required', value: 'Subscription support (Recharge), Custom Bundles, Currency Switcher' },
+    sections: [
+      { id: 't3-s1', title: 'Platform', description: '', questions: [
+        q('t3-q1', 'dropdown', 'CMS / e-commerce platform', { options: ['Shopify', 'Shopify Plus', 'WooCommerce', 'Other'] }),
+        q('t3-q2', 'checkbox', 'Features required', { options: ['Subscriptions', 'Custom bundles', 'Currency switcher', 'Reviews'] }),
+      ] },
     ],
   },
   {
     id: 'tmpl-4',
     title: 'Photography & Creative Direction Shot List',
     description: 'Product hero shots, lifestyle setup requirements, and model casting notes.',
-    fields: [
-      { label: 'Required Deliverable Aspect Ratios', value: '1:1 Square (Shopify), 9:16 Vertical (Reels/TikTok)' },
-      { label: 'Prop & Styling Notes', value: 'Minimalist wooden textures with bright warm natural daylight.' },
+    sections: [
+      { id: 't4-s1', title: 'Shot list', description: '', questions: [
+        q('t4-q1', 'checkbox', 'Required aspect ratios', { options: ['1:1 Square', '9:16 Vertical', '16:9 Landscape', '4:5 Portrait'] }),
+        q('t4-q2', 'textarea', 'Prop & styling notes'),
+        q('t4-q3', 'date', 'Preferred shoot date'),
+      ] },
     ],
   },
 ];

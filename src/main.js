@@ -1,10 +1,34 @@
 import './styles.css';
-import Sortable from 'sortablejs';
-import { state, ui, applyState, persist, LS_KEY, TOKEN_KEY } from './state.js';
+import { state, ui, applyState, persist, resetHistory, LS_KEY, TOKEN_KEY } from './state.js';
 import * as api from './api.js';
 import { renderAll } from './render.js';
 import { bindEvents } from './actions.js';
-import { $ } from './utils.js';
+import { loadResponses } from './responses.js';
+import { startRealtime } from './realtime.js';
+import { toast } from './ui/toast.js';
+
+let lastStateJson = '';
+
+// Don't overwrite what the admin is in the middle of typing
+const adminIsEditing = () =>
+  ui.mode === 'admin' && !!document.activeElement?.closest?.('[contenteditable="true"], #builderModal, #settingsModal');
+
+async function refreshState() {
+  const r = await api.fetchState();
+  if (!r.state) return;
+  const json = JSON.stringify(r.state);
+  if (json === lastStateJson || adminIsEditing()) return;
+  lastStateJson = json;
+  applyState(r.state);
+  resetHistory();
+  renderAll();
+}
+
+async function refreshResponses() {
+  await loadResponses();
+  // Skip while someone is typing in the form; their draft is kept and the page refreshes after they submit
+  if (!document.activeElement?.closest?.('#intakeFormContainer')) renderAll();
+}
 
 async function init() {
   const params = new URLSearchParams(location.search);
@@ -18,10 +42,10 @@ async function init() {
     try { initial = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch { initial = null; }
   }
   applyState(initial);
+  lastStateJson = JSON.stringify(remote.state);
 
   if (!ui.apiAvailable) {
-    // Local/demo mode (no server): behaves like the original single-file app.
-    ui.mode = forceClient ? 'client' : 'admin';
+    ui.mode = forceClient ? 'client' : 'admin'; // demo mode, like the original single-file app
   } else {
     ui.token = localStorage.getItem(TOKEN_KEY);
     if (params.get('mode') === 'admin' && !ui.token) {
@@ -33,34 +57,23 @@ async function init() {
     ui.mode = ok && !forceClient ? 'admin' : 'client';
   }
 
+  await loadResponses();
+  resetHistory();
   bindEvents();
-
-  const kpi = $('#kpiCardsContainer');
-  Sortable.create(kpi, {
-    handle: '.drag-handle',
-    animation: 150,
-    ghostClass: 'sortable-ghost',
-    disabled: ui.mode !== 'admin',
-    onEnd: () => {
-      state.kpiOrder = [...kpi.children].map((c) => c.dataset.cardId);
-      persist();
-    },
-  });
-
   renderAll();
 
   // First deploy: seed the server with the default project so clients see it.
   if (ui.apiAvailable && ui.mode === 'admin' && !remote.state) persist();
 
-  // Clients pick up admin changes without reloading.
   if (ui.apiAvailable) {
-    let last = JSON.stringify(remote.state);
-    setInterval(async () => {
-      if (ui.mode !== 'client') return;
-      const r = await api.fetchState();
-      const json = JSON.stringify(r.state);
-      if (r.state && json !== last) { last = json; applyState(r.state); renderAll(); }
-    }, 60000);
+    // Live updates from other devices; the 60s poll is only a safety net.
+    startRealtime({
+      state: refreshState,
+      responses: refreshResponses,
+      inbox: () => { if (ui.mode === 'admin') toast('New message in your inbox'); },
+      reconnect: () => { refreshState(); refreshResponses(); },
+    });
+    setInterval(() => { if (ui.mode === 'client') { refreshState(); refreshResponses(); } }, 60000);
   }
 }
 

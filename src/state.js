@@ -14,12 +14,29 @@ export const ui = {
   ganttFilter: 'all',
   activeTab: 'scope',
   drawerPkgId: null,
+  builderTemplateId: null,
+  drafts: {}, // unsaved intake answers per package: { [pkgId]: { name, email, answers } }
 };
 
 // Persisted project state
 export const state = {};
 
 const clone = (o) => JSON.parse(JSON.stringify(o));
+let uidN = 0;
+export const uid = (p) => `${p}-${Date.now().toString(36)}${(uidN++).toString(36)}`;
+
+// Older saved data used flat `fields`; convert to sections/questions.
+function migrateTemplates(list) {
+  list.forEach((t) => {
+    if (!t.sections) {
+      t.sections = [{
+        id: uid('sec'), title: 'Questions', description: '',
+        questions: (t.fields || []).map((f) => ({ id: uid('q'), type: 'textarea', label: f.label, required: false, options: [] })),
+      }];
+    }
+    delete t.fields;
+  });
+}
 
 export function applyState(incoming) {
   const base = {
@@ -30,10 +47,14 @@ export function applyState(incoming) {
     currentWeek: 19,
     meta: clone(defaultMeta),
     kpiOrder: [],
+    theme: { color: '#e53935' },
+    logo: '',
   };
   const s = incoming || {};
   Object.assign(state, base, s);
   state.meta = { ...base.meta, ...(s.meta || {}) };
+  state.theme = { ...base.theme, ...(s.theme || {}) };
+  migrateTemplates(state.templates);
   recalc();
   if (!state.packages.some((p) => p.id === ui.activePackageId)) {
     ui.activePackageId = state.packages[0]?.id ?? null;
@@ -42,9 +63,10 @@ export function applyState(incoming) {
 
 export const totalWeeks = () => state.months.reduce((acc, m) => acc + m.weeksCount, 0);
 
-// Completion % and status are derived from the scope checklists + current week.
+// Numbering follows list order; completion % and status are derived from scope + current week.
 export function recalc() {
-  state.packages.forEach((pkg) => {
+  state.packages.forEach((pkg, i) => {
+    pkg.number = String(i + 1);
     const total = pkg.scope.length;
     const done = pkg.scope.filter((s) => s.completed).length;
     pkg.percentage = total > 0 ? Math.round((done / total) * 100) : 0;
@@ -57,10 +79,47 @@ export function recalc() {
   });
 }
 
+// ---------- Undo / redo ----------
+// Every persist() compares the new state with the last one; if it changed, the old one goes on the undo stack.
+// Logo and theme are excluded (large / cosmetic) and are kept as-is when undoing.
+const hist = { undo: [], redo: [], current: '' };
+const snap = () => {
+  const { logo, theme, ...rest } = state;
+  return JSON.stringify(rest);
+};
+export function resetHistory() {
+  hist.undo = [];
+  hist.redo = [];
+  hist.current = snap();
+}
+export const canUndo = () => hist.undo.length > 0;
+export const canRedo = () => hist.redo.length > 0;
+
+function restore(json) {
+  const keep = { logo: state.logo, theme: state.theme };
+  applyState({ ...JSON.parse(json), ...keep });
+  save();
+}
+export function undo() {
+  if (!hist.undo.length) return false;
+  hist.redo.push(hist.current);
+  hist.current = hist.undo.pop();
+  restore(hist.current);
+  return true;
+}
+export function redo() {
+  if (!hist.redo.length) return false;
+  hist.undo.push(hist.current);
+  hist.current = hist.redo.pop();
+  restore(hist.current);
+  return true;
+}
+
+// ---------- Saving ----------
 let saveTimer;
-export function persist() {
+function save() {
   recalc();
-  localStorage.setItem(LS_KEY, JSON.stringify(state));
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch { /* storage full: ignore */ }
   if (ui.apiAvailable && ui.mode === 'admin' && ui.token) {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(async () => {
@@ -68,4 +127,16 @@ export function persist() {
       if (!ok) toast('Could not save to the server. Check your connection or admin token.');
     }, 400);
   }
+}
+
+export function persist() {
+  recalc();
+  const next = snap();
+  if (next !== hist.current) {
+    hist.undo.push(hist.current);
+    if (hist.undo.length > 100) hist.undo.shift();
+    hist.redo = [];
+    hist.current = next;
+  }
+  save();
 }

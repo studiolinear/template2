@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --brand: 229 57 53;
+  --brand-50: 253 240 240; --brand-100: 251 225 224; --brand-200: 247 195 194;
+  --brand-300: 242 156 154; --brand-400: 236 106 104; --brand-500: 233 78 74;
+  --brand-600: 206 51 48; --brand-700: 172 43 40; --brand-800: 137 34 32; --brand-900: 103 26 24;
+}
+
 body { background-color: #f4f5f7; }
 
 ::-webkit-scrollbar { height: 6px; width: 6px; }
@@ -14,19 +21,19 @@ body { background-color: #f4f5f7; }
 
 /* Editable indicators in Admin mode */
 .admin-mode [contenteditable="true"]:hover {
-  outline: 2px dashed #ef4444;
+  outline: 2px dashed rgb(var(--brand-500));
   outline-offset: 2px;
   border-radius: 4px;
   background-color: rgba(254, 242, 242, 0.6);
   cursor: text;
 }
 .admin-mode [contenteditable="true"]:focus {
-  outline: 2px solid #dc2626;
+  outline: 2px solid rgb(var(--brand-600));
   outline-offset: 2px;
   border-radius: 4px;
   background-color: #ffffff;
 }
 .drag-handle { cursor: grab; }
 .drag-handle:active { cursor: grabbing; }
-.sortable-ghost { opacity: 0.4; border: 2px dashed #ef4444 !important; }
+.sortable-ghost { opacity: 0.4; border: 2px dashed rgb(var(--brand-500)) !important; }
 .preline { white-space: pre-line; }

@@ -1,19 +1,19 @@
 import { state, ui } from '../state.js';
-import { $, $$, esc, pad, STATUS, safeUrl } from '../utils.js';
+import { $, esc, pad, STATUS, safeUrl } from '../utils.js';
+import { renderIntake } from './forms.js';
+
+const ibtn = (action, attrs, icon, title) =>
+  `<button data-action="${action}" ${attrs} title="${title}" class="p-1 text-slate-400 hover:text-brand rounded"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i></button>`;
 
 export function renderDetail() {
   const sec = $('#detailedSection');
   const pkg = state.packages.find((p) => p.id === ui.activePackageId) || state.packages[0];
-  if (!pkg) {
-    sec.classList.add('hidden');
-    return;
-  }
+  if (!pkg) { sec.classList.add('hidden'); return; }
   sec.classList.remove('hidden');
   ui.activePackageId = pkg.id;
   const admin = ui.mode === 'admin';
   const st = STATUS[pkg.status] || STATUS.upcoming;
 
-  // Header + selector
   const title = $('#selectedPackageTitle');
   if (document.activeElement !== title) title.textContent = `${pad(pkg.number)} ${pkg.name}`;
   const badge = $('#selectedPackageBadge');
@@ -24,8 +24,11 @@ export function renderDetail() {
     .join('');
   $('#actionPackage').innerHTML = state.packages.map((p) => `<option value="${esc(p.id)}">${pad(p.number)} ${esc(p.name)}</option>`).join('');
   $('#pkgChecklistPercent').textContent = `${pkg.percentage}%`;
+  [['#pkgStartWeek', pkg.startWeek], ['#pkgEndWeek', pkg.endWeek]].forEach(([sel, v]) => {
+    const el = $(sel);
+    if (document.activeElement !== el) el.value = v;
+  });
 
-  // Tabs
   ['scope', 'overview', 'assets', 'intake'].forEach((t) => {
     const on = t === ui.activeTab;
     const btn = $(`#tab-${t}`);
@@ -36,17 +39,22 @@ export function renderDetail() {
     $(`#content-${t}`).classList.toggle('hidden', !on);
   });
 
-  // 1. Scope checklist
+  // 1. Scope checklist (drag handle or ▲▼ to reorder)
   $('#checklistItemsContainer').innerHTML =
     pkg.scope
       .map(
         (item) => `
       <div class="flex items-center justify-between p-3 bg-white border ${item.completed ? 'border-emerald-200 bg-emerald-50/20' : 'border-slate-200'} rounded-lg hover:border-brand transition">
-        <div class="flex items-center gap-3 flex-1">
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+          <span class="item-handle admin-only cursor-grab text-slate-300 hover:text-slate-600" title="Drag to reorder"><i data-lucide="grip-vertical" class="w-4 h-4"></i></span>
           <input type="checkbox" data-change="toggle-item" data-pkg="${esc(pkg.id)}" data-item="${esc(item.id)}" ${item.completed ? 'checked' : ''} ${admin ? '' : 'disabled'} class="w-4 h-4 accent-brand" aria-label="Mark complete" />
           <span data-edit="scope-title" data-item="${esc(item.id)}" class="text-xs font-semibold ${item.completed ? 'line-through text-slate-400' : 'text-slate-800'}">${esc(item.title)}</span>
         </div>
-        <button data-action="remove-scope" data-item="${esc(item.id)}" class="text-slate-400 hover:text-red-500 admin-only px-1" title="Remove item"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+        <div class="admin-only flex items-center">
+          ${ibtn('move-scope', `data-item="${esc(item.id)}" data-dir="-1"`, 'chevron-up', 'Move up')}
+          ${ibtn('move-scope', `data-item="${esc(item.id)}" data-dir="1"`, 'chevron-down', 'Move down')}
+          <button data-action="remove-scope" data-item="${esc(item.id)}" class="text-slate-400 hover:text-red-500 px-1" title="Remove item"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+        </div>
       </div>`
       )
       .join('') || `<p class="text-xs text-slate-400">No scope items yet.</p>`;
@@ -96,27 +104,6 @@ export function renderDetail() {
       .join('') || `<p class="text-xs text-slate-400 col-span-full">No files yet.</p>`;
 
   // 4. Intake form
-  const tmpl = state.templates.find((t) => t.id === pkg.templateId) || state.templates[0];
-  $('#templateSelector').innerHTML = state.templates
-    .map((t) => `<option value="${esc(t.id)}" ${t.id === tmpl?.id ? 'selected' : ''}>${esc(t.title)}</option>`)
-    .join('');
   $('#templateSelector').disabled = !admin;
-  $('#intakeFormContainer').innerHTML = tmpl
-    ? `<div class="mb-3">
-         <h4 class="font-bold text-slate-800 text-sm">${esc(tmpl.title)}</h4>
-         <p class="text-xs text-slate-500">${esc(tmpl.description)}</p>
-       </div>
-       <div class="space-y-3">
-         ${tmpl.fields
-           .map(
-             (f, idx) => `
-           <div>
-             <label class="block text-xs font-bold text-slate-700 mb-1">${esc(f.label)}</label>
-             <textarea data-change="intake-field" data-idx="${idx}" ${admin ? '' : 'readonly'} rows="2"
-               class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand outline-none bg-white">${esc(pkg.intake?.[idx] ?? f.value)}</textarea>
-           </div>`
-           )
-           .join('')}
-       </div>`
-    : '';
+  renderIntake(pkg);
 }
