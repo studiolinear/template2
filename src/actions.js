@@ -1,4 +1,4 @@
-import { state, ui, persist, totalWeeks, TOKEN_KEY, uid, undo, redo, resetHistory } from './state.js';
+import { state, ui, persist, totalWeeks, TOKEN_KEY, uid, undo, redo, resetHistory, applyState } from './state.js';
 import * as api from './api.js';
 import { toast } from './ui/toast.js';
 import { renderAll } from './render.js';
@@ -150,6 +150,18 @@ const adminActions = {
     openModal('inboxModal');
     $('#inboxBody').innerHTML = '<p class="text-xs text-slate-400">Loading…</p>';
     renderInbox(ui.apiAvailable ? await api.fetchInbox(ui.token) : { inquiries: [], submissions: [], emailConfigured: true });
+  },
+  'export-template': () => {
+    const data = clone(state);
+    if (confirm('Reset every checklist item to unchecked in the exported template?\n\nOK = reset (good for a fresh client)\nCancel = keep as they are now')) {
+      data.packages.forEach((p) => p.scope.forEach((s) => { s.completed = false; }));
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+    a.download = 'dashboard-template.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('Template file downloaded');
   },
   'set-color': ({ color }) => { state.theme.color = color; commit(); },
   'reset-theme': () => { state.theme.color = '#e53935'; commit(); },
@@ -310,6 +322,12 @@ const changeActions = {
     state.currentWeek = clampW(parseInt(el.value, 10) || 1);
     commit();
   },
+  'set-waiting': (_, el) => {
+    if (ui.mode !== 'admin') return;
+    activePkg().waiting = el.checked;
+    commit();
+    toast(el.checked ? 'Marked as waiting on client' : 'Back to automatic status');
+  },
   'set-start': (_, el) => { if (ui.mode !== 'admin') return; const p = activePkg(); setWeeks(p, parseInt(el.value, 10) || p.startWeek, p.endWeek, 'start'); commit(); },
   'set-end': (_, el) => { if (ui.mode !== 'admin') return; const p = activePkg(); setWeeks(p, p.startWeek, parseInt(el.value, 10) || p.endWeek, 'end'); commit(); },
   'assign-template': (_, el) => {
@@ -319,6 +337,21 @@ const changeActions = {
     toast('Intake form updated for this package');
   },
   'theme-color': (_, el) => { if (ui.mode !== 'admin') return; state.theme.color = el.value; commit(); },
+  'import-template': async (_, el) => {
+    if (ui.mode !== 'admin') return;
+    const file = el.files[0];
+    el.value = '';
+    if (!file) return;
+    let data;
+    try { data = JSON.parse(await file.text()); } catch { return toast('That file is not valid JSON.'); }
+    if (!data || !Array.isArray(data.packages) || !Array.isArray(data.months) || !Array.isArray(data.templates)) {
+      return toast('That does not look like a dashboard template file.');
+    }
+    if (!confirm('Replace this whole dashboard (packages, timeline, forms, logo, colors) with the template? You can undo everything except the logo and color.')) return;
+    applyState(data);
+    commit();
+    toast('Template imported');
+  },
   'logo-file': (_, el) => { if (ui.mode !== 'admin') return; readLogo(el.files[0]); el.value = ''; },
   // Form builder fields
   'bld-tmpl': ({ key }, el) => { builderTmpl()[key] = el.value; persist(); },

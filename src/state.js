@@ -76,6 +76,9 @@ export function recalc() {
     else if (pkg.startWeek <= state.currentWeek && pkg.endWeek >= state.currentWeek) pkg.status = 'in-progress';
     else if (pkg.startWeek > state.currentWeek) pkg.status = 'upcoming';
     else pkg.status = 'in-progress'; // past its end week with nothing done = overdue, not complete
+
+    // Manual switch (package header): amber "Waiting on client" unless the package is already complete
+    if (pkg.waiting && pkg.status !== 'completed') pkg.status = 'waiting';
   });
 }
 
