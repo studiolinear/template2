@@ -15,6 +15,8 @@ const FILES = {
   inquiries: path.join(DATA_DIR, 'inquiries.json'),
 };
 const DIST = path.join(__dirname, '..', 'dist');
+// Optional starting dashboard committed to the repo (see README: "Use this dashboard as a template")
+const SEED_FILE = path.join(__dirname, '..', 'seed', 'state.json');
 
 // Email for the "Have a question?" form (sent through Resend's HTTPS API)
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
@@ -107,7 +109,7 @@ app.get('/api/events', (req, res) => {
 // Dashboard data: anyone with the link can read; only the admin can write
 app.get('/api/state', wrap(async (_req, res) => {
   res.set('Cache-Control', 'no-store');
-  res.json({ state: await readJson(FILES.state, null) });
+  res.json({ state: await readJson(FILES.state, await readJson(SEED_FILE, null)) });
 }));
 app.post('/api/auth', requireAdmin, (_req, res) => res.json({ ok: true }));
 app.put('/api/state', requireAdmin, wrap(async (req, res) => {

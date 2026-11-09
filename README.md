@@ -53,6 +53,7 @@ Edits are saved on the server, so every device sees the latest version **live** 
 
 - **Week adjustment:** each timeline row has start `‹ ›` and end `‹ ›` buttons, plus Start/End week boxes in the package header.
 - **Intake form builder:** Intake Forms → Edit form. Sections with headers; question types: short answer, paragraph, dropdown, multiple choice, checkboxes, date; required flag; reorder with arrows. Clients fill in the form on the package's Intake tab and press Submit. Answers are stored on the server and show on every device. **Export PDF** opens a print-ready page; choose "Save as PDF". Admin can also export all packages and clear a submission.
+- **Waiting on client switch:** in a package's header (Admin), turn on "Waiting on client" to mark it amber everywhere (timeline, phases list, counts, badge). It's removed from the In-progress box while on. Completed packages ignore the switch. Turn it off to return to the automatic status.
 - **Undo / Redo** (header buttons, Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z). History lasts until you reload the page. Logo and color changes are not part of undo.
 - **Reorder** packages in the timeline (drag the handle or use ▲▼) and scope checklist items (drag or ▲▼). Package numbers follow the order.
 - **Customize** (header): upload a logo and pick the theme color.
@@ -73,6 +74,15 @@ Railway blocks normal SMTP on most plans, so the server sends through Resend's w
 Without `RESEND_API_KEY`, messages are still saved and visible in the Inbox, but nothing is emailed (the Inbox shows a warning).
 
 **Privacy note:** anyone with the client link can see the dashboard and submitted intake answers. Share the link only with the client. Never put passwords in the forms.
+
+## Use this dashboard as a template for new projects
+
+Your edits live in the Railway volume, not in GitHub, so a new deployment starts with the default content. To reuse your edited dashboard:
+
+1. In your finished dashboard (Admin mode): **Customize → Export template**. Choose OK to reset all checklist items to unchecked (good for a new client). This downloads `dashboard-template.json`.
+2. **Option A: import by hand.** In the new deployment (Admin mode): **Customize → Import template** and pick the file.
+3. **Option B: bake it into the repo.** Save the file as `seed/state.json` in the repo and commit it. Every new deployment of that repo then starts from your template automatically. (A deployment that already has saved data ignores the seed.)
+4. For a new client, deploy the repo as a new Railway project (new `ADMIN_TOKEN`, its own Volume at `/data`, `DATA_DIR=/data`). If you want different templates for different clients, keep one repo per template (GitHub: **Use this template**, or fork), each with its own `seed/state.json`.
 
 ## Deploy: GitHub
 
