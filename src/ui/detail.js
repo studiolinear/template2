@@ -24,6 +24,9 @@ export function renderDetail() {
     .join('');
   $('#actionPackage').innerHTML = state.packages.map((p) => `<option value="${esc(p.id)}">${pad(p.number)} ${esc(p.name)}</option>`).join('');
   $('#pkgChecklistPercent').textContent = `${pkg.percentage}%`;
+  const w = $('#pkgWaiting');
+  w.checked = !!pkg.waiting;
+  w.disabled = pkg.status === 'completed'; // a finished package can't be waiting
   [['#pkgStartWeek', pkg.startWeek], ['#pkgEndWeek', pkg.endWeek]].forEach(([sel, v]) => {
     const el = $(sel);
     if (document.activeElement !== el) el.value = v;
