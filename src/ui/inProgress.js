@@ -4,12 +4,12 @@ import { $, esc, pad } from '../utils.js';
 // NEW: one card per in-progress package showing its scope-of-work checklist.
 export function renderInProgress() {
   const admin = ui.mode === 'admin';
-  const list = state.packages.filter((p) => p.status === 'in-progress');
+  const list = state.packages.filter((p) => p.status === 'in-progress' || p.status === 'waiting');
   $('#inProgressCount').textContent = list.length;
   const host = $('#inProgressGrid');
 
   if (!list.length) {
-    host.innerHTML = `<div class="col-span-full text-center text-sm text-slate-400 py-8">No packages are in progress right now.</div>`;
+    host.innerHTML = `<div class="col-span-full text-center text-sm text-slate-400 py-8">No packages are in progress or waiting on the client right now.</div>`;
     return;
   }
 
@@ -38,12 +38,12 @@ export function renderInProgress() {
                 <button data-action="goto-package" data-id="${esc(pkg.id)}" class="text-left font-extrabold text-sm text-slate-900 hover:text-brand truncate max-w-full">
                   ${pad(pkg.number)} ${esc(pkg.name)}
                 </button>
-                <p class="text-[11px] text-slate-500 mt-0.5">Weeks ${pkg.startWeek}–${pkg.endWeek}</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">Weeks ${pkg.startWeek}–${pkg.endWeek}${pkg.status === 'waiting' ? ' <span class="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">Waiting on client</span>' : ''}</p>
               </div>
               <span class="text-xl font-black text-brand">${pkg.percentage}%</span>
             </div>
             <div class="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
-              <div class="bg-blue-600 h-full rounded-full transition-all duration-500" style="width:${pkg.percentage}%"></div>
+              <div class="${pkg.status === 'waiting' ? 'bg-amber-500' : 'bg-blue-600'} h-full rounded-full transition-all duration-500" style="width:${pkg.percentage}%"></div>
             </div>
           </div>
           <ul class="px-4 py-2 divide-y divide-slate-100 flex-1">${items || '<li class="py-3 text-xs text-slate-400">No scope items yet.</li>'}</ul>

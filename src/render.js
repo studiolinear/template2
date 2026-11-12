@@ -9,6 +9,7 @@ import { renderDetail } from './ui/detail.js';
 import { renderDrawer } from './ui/drawer.js';
 import { renderTemplatesModal } from './ui/templates.js';
 import { renderBuilder } from './ui/builder.js';
+import { renderTemplateEditor } from './ui/tmplLibrary.js';
 
 function applyMode() {
   const admin = ui.mode === 'admin';
@@ -64,6 +65,7 @@ export function renderAll() {
   renderDrawer();
   renderTemplatesModal();
   renderBuilder();
+  renderTemplateEditor();
   const c = $('#kpiCardsContainer');
   (state.kpiOrder || []).forEach((id) => {
     const el = c.querySelector(`[data-card-id="${id}"]`);

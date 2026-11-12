@@ -21,7 +21,7 @@
         </div>
         <p class="text-xs sm:text-sm text-brand-100 mt-0.5 font-medium">
           PROJECT NAME: <span class="font-bold text-white tracking-wide" data-edit="meta" data-key="projectName"></span>
-          &nbsp;|&nbsp; LAST UPDATED: <span class="font-semibold text-white" data-edit="meta" data-key="lastUpdated"></span>
+          &nbsp;|&nbsp; LAST UPDATED: <span class="font-semibold text-white" data-meta="lastUpdated" title="Updates automatically whenever the dashboard is changed"></span>
         </p>
       </div>
 
@@ -117,10 +117,10 @@
     <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden" id="sectionInProgress">
       <div class="p-4 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-2">
         <h2 class="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-          <i data-lucide="list-checks" class="w-5 h-5 text-brand"></i> In-progress packages: scope of work
+          <i data-lucide="list-checks" class="w-5 h-5 text-brand"></i> In progress &amp; waiting on client: scope of work
           <span id="inProgressCount" class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
         </h2>
-        <span class="text-xs text-slate-500">Every deliverable for packages currently underway.</span>
+        <span class="text-xs text-slate-500">Every deliverable for packages underway or waiting on the client.</span>
       </div>
       <div id="inProgressGrid" class="p-4 grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4"></div>
     </section>
@@ -195,11 +195,25 @@
               <div class="text-right"><span class="text-2xl font-black text-brand" id="pkgChecklistPercent">0%</span><span class="text-xs text-slate-500 block">Completion</span></div>
             </div>
           </div>
+          <div class="admin-only flex flex-wrap items-center gap-2 mb-4 p-3 rounded-lg border border-dashed border-slate-300 bg-white text-xs">
+            <span class="font-bold text-slate-700">Scope template:</span>
+            <select id="scopeTemplateSelect" data-change="pick-scope-template" class="border border-slate-300 rounded-lg py-1.5 px-2 font-medium text-slate-800 max-w-full focus:outline-none focus:ring-2 focus:ring-brand"></select>
+            <button data-action="apply-scope-template" class="px-3 py-1.5 bg-brand text-white font-bold rounded hover:bg-brand-600">Apply to this package</button>
+            <button data-action="open-template-editor" class="px-3 py-1.5 border border-slate-300 font-bold rounded hover:border-brand text-slate-700">Edit templates</button>
+          </div>
           <div id="checklistItemsContainer" class="space-y-3"></div>
         </div>
       </div>
 
       <div id="content-overview" class="p-4 sm:p-6 hidden overflow-x-auto">
+        <div class="admin-only flex flex-wrap items-center gap-2 mb-3 p-3 rounded-lg border border-dashed border-slate-300 bg-white text-xs">
+          <span class="font-bold text-slate-700">Weekly template:</span>
+          <select id="weeklyTemplateSelect" data-change="pick-weekly-template" class="border border-slate-300 rounded-lg py-1.5 px-2 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand"></select>
+          <button data-action="apply-weekly-template" class="px-3 py-1.5 bg-brand text-white font-bold rounded hover:bg-brand-600">Apply to this package</button>
+          <button data-action="open-template-editor" class="px-3 py-1.5 border border-slate-300 font-bold rounded hover:border-brand text-slate-700">Edit templates</button>
+          <span class="text-slate-400">Week 1 of the template becomes this package's start week.</span>
+        </div>
+        <div id="weeklyCurrentBanner" class="mb-3 text-xs font-semibold rounded-lg px-3 py-2 bg-brand-50 text-brand-700 border border-brand-200"></div>
         <div class="flex justify-between items-center mb-3">
           <span class="text-xs text-slate-500">Weekly schedule for this package.</span>
           <button data-action="add-weekly" class="px-3 py-1 bg-brand text-white text-xs font-bold rounded shadow hover:bg-brand-600 transition admin-only">+ Add Roadmap Row</button>
@@ -328,6 +342,25 @@
           <button type="submit" class="px-4 py-2 bg-brand hover:bg-brand-600 text-white font-bold rounded shadow">Send to Studio Linear</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- SCOPE & WEEKLY TEMPLATE EDITOR -->
+  <div id="templateEditorModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl max-w-3xl w-full shadow-2xl overflow-hidden border border-slate-200 max-h-[92vh] flex flex-col">
+      <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+        <h3 class="font-bold text-base">Scope &amp; weekly templates</h3>
+        <button data-action="close-modal" data-id="templateEditorModal" class="text-white hover:text-slate-200" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="flex border-b border-slate-200 px-4 pt-2 gap-4 text-xs font-bold">
+        <button data-action="tmpl-tab" data-tab="scope" id="tmpltab-scope" class="py-2.5 px-3 border-b-2">Scope of work</button>
+        <button data-action="tmpl-tab" data-tab="weekly" id="tmpltab-weekly" class="py-2.5 px-3 border-b-2">Weekly breakdown</button>
+      </div>
+      <div id="templateEditorBody" class="p-5 flex-1 overflow-y-auto text-xs"></div>
+      <div class="p-4 bg-slate-100 border-t border-slate-200 flex justify-between items-center">
+        <span class="text-[11px] text-slate-500">Changes save automatically. Applying a template copies it into the package; later edits here don't change packages already set up.</span>
+        <button data-action="close-modal" data-id="templateEditorModal" class="px-4 py-2 bg-brand text-white font-bold rounded text-xs">Done</button>
+      </div>
     </div>
   </div>
 

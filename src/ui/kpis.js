@@ -6,6 +6,7 @@ export function renderMeta() {
     if (document.activeElement === el) return;
     el.textContent = state.meta[el.dataset.key] ?? '';
   });
+  document.querySelectorAll('[data-meta]').forEach((el) => { el.textContent = state.meta[el.dataset.meta] ?? ''; });
   const w = $('#currentWeekInput');
   if (w && document.activeElement !== w) w.value = state.currentWeek;
   if (w) w.disabled = ui.mode !== 'admin';

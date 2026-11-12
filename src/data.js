@@ -189,3 +189,186 @@ export const defaultPackages = [
     weekly: [], assets: [],
   },
 ];
+
+// ---------------------------------------------------------------------------
+// Scope-of-work templates (from the Studio Linear "Scope of work" doc).
+// Each template is a package/tier; applying one fills the package's scope checklist.
+// ---------------------------------------------------------------------------
+const L = (str) => str.split('\n').map((x) => x.trim()).filter(Boolean);
+
+const ST_STANDARD = `1-day strategy workshop
+Brand strategy homework
+Final Brand Strategy Handbook
+Market + competitive analysis
+Core identity re-exploration (positioning, personality, differentiation)
+Audience + value proposition refinement
+Mission, vision, values, and positioning statement
+Rewritten brand narrative + messaging framework
+Voice, tone, and cross-channel storytelling (web, social, retail)`;
+const SOCIAL_BASE = `Social media strategy and positioning
+Monthly content planning and calendar
+Caption writing and post optimization
+Scheduling and publishing content
+Comment responses and light DM monitoring
+Platform guidance and growth recommendations
+Monthly performance reporting
+Ongoing campaign and promo support`;
+const INFLUENCER = `Influencer sourcing and vetting
+Outreach and partnership coordination
+Campaign briefs and content guidelines
+Influencer relationship management
+Content review and approvals
+Campaign performance tracking and reporting`;
+const UGC = `UGC creator sourcing and vetting
+Creator outreach and coordination
+Content brief development
+Review and approval of UGC content
+Organizing and delivering UGC assets
+Performance reporting and optimization`;
+const MSG_STANDARD = `Intake form
+30min strategy call
+Brand messaging deck
+Problem / solution
+Mission statement
+Manifesto / who we are
+Tone words
+Buzz words
+Headlines
+Grammar & style guidelines
+Voice do's and don'ts
+2 rounds of revisions`;
+
+export const defaultScopeTemplates = [
+  { id: 'sc-bs-ess', name: 'Brand Strategy – Essentials', items: L(`1-hour kickoff call for brand alignment
+Brand strategy homework (basic insights gathering)
+Market & competitive overview (high-level)
+Core identity review (positioning + differentiators)
+Basic audience definition + key value proposition
+Mini Brand Strategy Summary (short handbook)`) },
+  { id: 'sc-bs-std', name: 'Brand Strategy – Standard', items: L(ST_STANDARD) },
+  { id: 'sc-bs-prem', name: 'Brand Strategy – Premium', items: L(`${ST_STANDARD}
+Additional stakeholder workshop(s) or deep-dive sessions
+Extended competitive & cultural trend analysis
+Expanded audience personas with psychographics and segmentation
+Messaging playbook with platform-specific guidelines
+Visual storytelling guidance for brand applications (packaging, digital, retail)
+Launch strategy recommendations or campaign blueprint
+Optional content examples for web, social, and retail`) },
+  { id: 'sc-bm-ess', name: 'Brand Messaging – Essentials', items: L(`Intake form
+30min strategy call
+Brand messaging deck
+Problem / solution
+Mission statement
+Tone words
+Buzz words
+Headlines
+1 round of revisions`) },
+  { id: 'sc-bm-std', name: 'Brand Messaging – Standard', items: L(MSG_STANDARD) },
+  { id: 'sc-bm-prem', name: 'Brand Messaging – Premium', items: L(`${MSG_STANDARD}
+Brand positioning statement
+Audience personas
+Value propositions
+Brand story narrative
+Extended tone matrix
+Messaging pillars
+Social bio + brand description
+Email/newsletter intro copy`) },
+  { id: 'sc-branding', name: 'Branding Package', items: L(`Intake form
+Onboarding call
+Pinterest board / mood board / color variations
+Fonts
+4-6 logo / submark concepts
+Brand application examples
+Basic brand book
+2 rounds of revisions`) },
+  { id: 'sc-packaging', name: 'Packaging Design', items: L(`Custom packaging design
+Creative direction
+Pinterest board
+Moodboard
+Digital mockup
+Working files in .AI, .PNG, and .PDF formats
+2 rounds of revisions`) },
+  { id: 'sc-website', name: 'Website Package', items: L(`Intake form
+Onboarding call
+Collaborative Pinterest board
+Up to 8 pages
+Custom Figma design
+Desktop & mobile responsive design
+2 rounds of revisions
+Build in selected CMS
+Connect merch page with existing Shopify site
+Connect to social media
+Connect newsletter
+Location map + age gate
+Tax & shipping setup`) },
+  { id: 'sc-photo', name: 'Product Photography', items: L(`5-7 images
+Model not included
+Additional props, wardrobe, model, and location to be reimbursed in the final invoice (if needed)`) },
+  { id: 'sc-photo-life', name: 'Product & Lifestyle Photography', items: L(`5-7 images
+Includes wardrobe, props and model
+Location costs to be reimbursed in the final invoice (if needed)`) },
+  { id: 'sc-social', name: 'Full Social Management + Strategy', items: L(SOCIAL_BASE) },
+  { id: 'sc-social-inf', name: 'Full Social Management + Influencer Campaigns', items: L(`${SOCIAL_BASE}\n${INFLUENCER}`) },
+  { id: 'sc-social-ugc', name: 'Full Social Management + UGC Program', items: L(`${SOCIAL_BASE}\n${UGC}`) },
+  { id: 'sc-social-all', name: 'Full Social Management + Influencer + UGC', items: L(`${SOCIAL_BASE}
+Influencer campaign management
+${INFLUENCER}
+UGC creator program management
+${UGC}
+Integrated campaign planning across all channels`) },
+];
+
+// ---------------------------------------------------------------------------
+// Weekly-breakdown templates (from the "Weekly Breakdown" Google Sheet).
+// Week numbers are relative (1 = the package's first week); applying one to a package maps them
+// to the package's real timeline weeks. rows: [our work, client needs to provide, milestone / review]
+// ---------------------------------------------------------------------------
+export const defaultWeeklyTemplates = [
+  { id: 'wk-bs', name: 'Brand Strategy', rows: [
+    ['Brand strategy workshop', 'Completed brand strategy homework', 'Brand Strategy Workshop Completed'],
+    ['Finalizing brand strategy deck', 'Any additional info during workshop (if applicable)', 'Final deck internal review'],
+    ['Deliver final brand strategy deck', 'Feedback and revisions (if applicable)', 'Review and revision'],
+    ['Finalize brand strategy', 'Final approval', 'Brand Strategy Approved ✅'],
+  ] },
+  { id: 'wk-bm', name: 'Brand Messaging', rows: [
+    ['Preparation / Based on Brand strategy direction', 'Any additional info (if applicable)', 'Messaging framework prepared'],
+    ['Develop brand messaging', 'Clarifications on messaging direction (if applicable)', 'Brand messaging internal review'],
+    ['Deliver brand messaging deck', 'Feedback and revisions', 'Client review and feedback completed'],
+    ['Finalize brand messaging', 'Final approval', 'Brand Messaging approved ✅'],
+  ] },
+  { id: 'wk-branding', name: 'Branding', rows: [
+    ['Branding kickoff / Creative direction', '', 'Creative direction presented'],
+    ['Brand concepts development', 'Additional feedback (if applicable)', 'Branding concepts development started'],
+    ['Brand concepts presentation', 'Feedback and revisions', 'Branding concepts feedback received'],
+    ['Revisions to brand concept', 'Feedback and revisions', 'Branding concepts feedback received'],
+    ['Final revisions to brand concept', 'Feedback and revisions', 'Branding concepts feedback received'],
+    ['Final deliverables', '', 'Branding package delivered'],
+  ] },
+  { id: 'wk-packaging', name: 'Packaging', rows: [
+    ['Kickoff and preparation / Creative direction', 'All needed assets (dielines, product info, packaging material specs, etc.)', 'Packaging requirements complete'],
+    ['Concept development & mockups', 'Feedback on design direction', 'Initial packaging concepts presented'],
+    ['Design revisions', 'Feedback and confirm packaging details', 'Packaging design approved'],
+    ['Final design revisions', 'Feedback and revisions', 'Branding concepts feedback received'],
+    ['Finalization', 'Print-ready artwork approval', 'Packaging files delivered'],
+  ] },
+  { id: 'wk-website', name: 'Website', rows: [
+    ['Kickoff / Preparation and asset collection', 'Website assets due this week', 'Website assets received & verified'],
+    ['Homepage design', 'Any outstanding assets & homepage design feedback', 'Homepage design review'],
+    ['Website design development', 'Final feedback on homepage & clarifications on page content', 'Interior pages presented'],
+    ['Design revisions & finalization', 'Final approval of all website designs', 'Website design approved ✅'],
+    ['Website development', 'Confirm technical access (if not already provided)', 'Development kickoff'],
+    ['Continue development', 'API keys or 3rd party credentials (if applicable)', 'Development progress internal review'],
+    ['Continue development', 'Final content updates (if any)', 'Development complete'],
+    ['QA & client review', 'Review staging website & submit final feedback', 'Staging site approved'],
+    ['Final refinements & launch', 'Final authorization to launch', 'Website successfully launched'],
+  ] },
+  { id: 'wk-photo', name: 'Photography', rows: [
+    ['Shot planning', 'Review shot list, usage requirements', 'Shot list sent for review'],
+    ['Finalize shot list', 'Approve final shot list & confirm products/SKUs', 'Shot list approved ✅'],
+    ['Pre-production', 'Products must be delivered by this week', 'Pre-production underway'],
+    ['Production preparation', 'Confirm availability for approvals (if needed)', 'Production ready'],
+    ['Lifestyle photoshoot', 'Be available for real-time approvals (if attending remotely or on-site)', 'Photoshoot completed'],
+    ['Post-production', 'Select preferred images & final approval of edits', 'Final images approved'],
+    ['Final delivery', '', 'Lifestyle photography delivered'],
+  ] },
+];

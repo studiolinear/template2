@@ -11,7 +11,7 @@ let lastStateJson = '';
 
 // Don't overwrite what the admin is in the middle of typing
 const adminIsEditing = () =>
-  ui.mode === 'admin' && !!document.activeElement?.closest?.('[contenteditable="true"], #builderModal, #settingsModal');
+  ui.mode === 'admin' && !!document.activeElement?.closest?.('[contenteditable="true"], #builderModal, #settingsModal, #templateEditorModal');
 
 async function refreshState() {
   const r = await api.fetchState();

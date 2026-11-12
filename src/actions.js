@@ -9,6 +9,8 @@ import { exportPdf } from './pdf.js';
 import { renderInbox } from './ui/inbox.js';
 import { HAS_OPTIONS } from './ui/forms.js';
 
+const linesOf = (v) => v.split('\n').map((s) => s.trim()).filter(Boolean);
+
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const getPkg = (id) => state.packages.find((p) => p.id === id);
 const activePkg = () => getPkg(ui.activePackageId);
@@ -305,6 +307,39 @@ const adminActions = {
     if (!(await clearResponse(id))) return toast('Could not clear the submission.');
     renderAll();
   },
+  'open-template-editor': () => { openModal('templateEditorModal'); renderAll(); },
+  'tmpl-tab': ({ tab }) => { ui.tmplTab = tab; renderAll(); },
+  'add-scope-tmpl': () => { state.scopeTemplates.push({ id: uid('sc'), name: 'New scope template', items: ['First deliverable'] }); commit(); },
+  'del-scope-tmpl': ({ idx }) => { if (confirm('Delete this scope template? Packages already using it keep their checklist.')) { state.scopeTemplates.splice(+idx, 1); commit(); } },
+  'add-weekly-tmpl': () => { state.weeklyTemplates.push({ id: uid('wk'), name: 'New weekly template', rows: [['Our work', 'Client needs to provide', 'Milestone / review']] }); commit(); },
+  'del-weekly-tmpl': ({ idx }) => { if (confirm('Delete this weekly template? Packages already using it keep their schedule.')) { state.weeklyTemplates.splice(+idx, 1); commit(); } },
+  'apply-scope-template': () => {
+    const pkg = activePkg();
+    const t = state.scopeTemplates.find((x) => x.id === $('#scopeTemplateSelect').value);
+    if (!t) return toast('Choose a scope template first.');
+    if (pkg.scope.length && !confirm(`Replace this package's checklist with "${t.name}"?\nItems with the same name keep their checked status. You can undo this.`)) return;
+    const done = new Set(pkg.scope.filter((s) => s.completed).map((s) => s.title.trim().toLowerCase()));
+    pkg.scope = t.items.map((title) => ({ id: uid('s'), title, completed: done.has(title.trim().toLowerCase()) }));
+    pkg.scopeTemplateId = t.id;
+    commit();
+    toast(`Scope template applied: ${t.name}`);
+  },
+  'apply-weekly-template': () => {
+    const pkg = activePkg();
+    const t = state.weeklyTemplates.find((x) => x.id === $('#weeklyTemplateSelect').value);
+    if (!t) return toast('Choose a weekly template first.');
+    if (pkg.weekly.length && !confirm(`Replace this package's weekly breakdown with "${t.name}"? You can undo this.`)) return;
+    const first = pkg.startWeek;
+    const last = first + t.rows.length - 1;
+    pkg.weekly = t.rows.map(([work, client, milestone], i) => ({ week: `W${first + i}`, work, client, milestone, files: '', notes: '' }));
+    pkg.weeklyTemplateId = t.id;
+    if (pkg.endWeek !== last && confirm(`The template runs ${t.rows.length} week${t.rows.length === 1 ? '' : 's'} (W${first}–W${last}). Set this package's timeline bar to match?`)) {
+      while (totalWeeks() < last) state.months[state.months.length - 1].weeksCount++;
+      pkg.endWeek = last;
+    }
+    commit();
+    toast(`Weekly template applied: ${t.name}`);
+  },
   'export-all-pdf': () => exportPdf(state.packages.map((p) => p.id)),
 };
 
@@ -335,6 +370,15 @@ const changeActions = {
     activePkg().templateId = el.value;
     commit();
     toast('Intake form updated for this package');
+  },
+  'pick-scope-template': (_, el) => { ui.picks['#scopeTemplateSelect'] = el.value; },
+  'pick-weekly-template': (_, el) => { ui.picks['#weeklyTemplateSelect'] = el.value; },
+  'sc-tmpl': ({ idx, key }, el) => { const t = state.scopeTemplates[+idx]; if (key === 'items') t.items = linesOf(el.value); else t.name = el.value.trim() || t.name; persist(); },
+  'wk-tmpl': ({ idx, key }, el) => {
+    const t = state.weeklyTemplates[+idx];
+    if (key === 'rows') t.rows = linesOf(el.value).map((l) => { const p = l.split('|').map((x) => x.trim()); return [p[0] || '', p[1] || '', p[2] || '']; });
+    else t.name = el.value.trim() || t.name;
+    persist();
   },
   'theme-color': (_, el) => { if (ui.mode !== 'admin') return; state.theme.color = el.value; commit(); },
   'import-template': async (_, el) => {

@@ -54,6 +54,10 @@ Edits are saved on the server, so every device sees the latest version **live** 
 - **Week adjustment:** each timeline row has start `‹ ›` and end `‹ ›` buttons, plus Start/End week boxes in the package header.
 - **Intake form builder:** Intake Forms → Edit form. Sections with headers; question types: short answer, paragraph, dropdown, multiple choice, checkboxes, date; required flag; reorder with arrows. Clients fill in the form on the package's Intake tab and press Submit. Answers are stored on the server and show on every device. **Export PDF** opens a print-ready page; choose "Save as PDF". Admin can also export all packages and clear a submission.
 - **Waiting on client switch:** in a package's header (Admin), turn on "Waiting on client" to mark it amber everywhere (timeline, phases list, counts, badge). It's removed from the In-progress box while on. Completed packages ignore the switch. Turn it off to return to the automatic status.
+- **Scope templates:** Scope tab → pick a template (e.g. Brand Strategy – Standard, Website Package) → Apply to this package. Items with the same name keep their checked status. Edit, add or delete templates with Edit templates.
+- **Weekly breakdown templates:** Weekly Breakdown tab → pick a template → Apply. Template week 1 becomes the package's start week (e.g. a Website template on a package starting W22 fills W22–W30), and you can resize the timeline bar to match.
+- **Current week highlight:** rows in every package's Weekly Breakdown that cover the current week (e.g. W6, or a range like W2-W4) are highlighted with a NOW tag, with a banner showing the current week.
+- **In-progress section** now also shows packages marked Waiting on client (amber).
 - **Undo / Redo** (header buttons, Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z). History lasts until you reload the page. Logo and color changes are not part of undo.
 - **Reorder** packages in the timeline (drag the handle or use ▲▼) and scope checklist items (drag or ▲▼). Package numbers follow the order.
 - **Customize** (header): upload a logo and pick the theme color.

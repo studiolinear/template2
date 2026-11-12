@@ -20,3 +20,10 @@ export const STATUS = {
 
 export const openModal = (id) => document.getElementById(id).classList.remove('hidden');
 export const closeModal = (id) => document.getElementById(id).classList.add('hidden');
+
+// "W6" -> [6,6]; "W2-W4" or "W2–W4" -> [2,4]; "5" -> [5,5]; anything else -> null
+export function parseWeekRange(text) {
+  const n = (String(text || '').match(/\d+/g) || []).map(Number);
+  if (!n.length) return null;
+  return [Math.min(n[0], n[n.length - 1]), Math.max(n[0], n[n.length - 1])];
+}

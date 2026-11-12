@@ -1,4 +1,4 @@
-import { defaultPackages, defaultTemplates, defaultMonths, defaultWaiting, defaultMeta } from './data.js';
+import { defaultPackages, defaultTemplates, defaultMonths, defaultWaiting, defaultMeta, defaultScopeTemplates, defaultWeeklyTemplates } from './data.js';
 import * as api from './api.js';
 import { toast } from './ui/toast.js';
 
@@ -15,6 +15,8 @@ export const ui = {
   activeTab: 'scope',
   drawerPkgId: null,
   builderTemplateId: null,
+  tmplTab: 'scope',
+  picks: {}, // template dropdown choices (not saved)
   drafts: {}, // unsaved intake answers per package: { [pkgId]: { name, email, answers } }
 };
 
@@ -49,6 +51,8 @@ export function applyState(incoming) {
     kpiOrder: [],
     theme: { color: '#e53935' },
     logo: '',
+    scopeTemplates: clone(defaultScopeTemplates),
+    weeklyTemplates: clone(defaultWeeklyTemplates),
   };
   const s = incoming || {};
   Object.assign(state, base, s);
@@ -86,9 +90,13 @@ export function recalc() {
 // Every persist() compares the new state with the last one; if it changed, the old one goes on the undo stack.
 // Logo and theme are excluded (large / cosmetic) and are kept as-is when undoing.
 const hist = { undo: [], redo: [], current: '' };
+// "Last updated" is stamped automatically, so it is left out of the undo history.
+const stampNow = () =>
+  new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 const snap = () => {
-  const { logo, theme, ...rest } = state;
-  return JSON.stringify(rest);
+  const { logo, theme, meta, ...rest } = state;
+  const { lastUpdated, ...metaRest } = meta || {};
+  return JSON.stringify({ ...rest, meta: metaRest });
 };
 export function resetHistory() {
   hist.undo = [];
@@ -100,7 +108,9 @@ export const canRedo = () => hist.redo.length > 0;
 
 function restore(json) {
   const keep = { logo: state.logo, theme: state.theme };
-  applyState({ ...JSON.parse(json), ...keep });
+  const prev = JSON.parse(json);
+  applyState({ ...prev, ...keep, meta: { ...(prev.meta || {}), lastUpdated: state.meta.lastUpdated } });
+  state.meta.lastUpdated = stampNow();
   save();
 }
 export function undo() {
@@ -140,6 +150,7 @@ export function persist() {
     if (hist.undo.length > 100) hist.undo.shift();
     hist.redo = [];
     hist.current = next;
+    if (ui.mode === 'admin') state.meta.lastUpdated = stampNow(); // any real change by the admin
   }
   save();
 }
