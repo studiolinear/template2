@@ -60,7 +60,7 @@ export function renderDetail() {
         </div>
       </div>`
       )
-      .join('') || `<p class="text-xs text-slate-400">No scope items yet.</p>`;
+      .join('') || `<p class="text-xs text-slate-400">No scope items yet.${admin ? ' Pick a scope template above and press Apply, or add items one by one.' : ''}</p>`;
 
   // Template pickers (admin)
   const pick = (sel, list, cur) => {

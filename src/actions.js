@@ -212,13 +212,15 @@ const adminActions = {
     const pkg = {
       id: uid('pkg'), number: '', name, status: 'upcoming',
       startWeek: clampW(state.currentWeek + 1), endWeek: clampW(state.currentWeek + 5),
-      templateId: state.templates[0]?.id, scope: [{ id: uid('s'), title: 'Initial kickoff & alignment', completed: false }],
+      templateId: state.templates[0]?.id, scope: [],
       weekly: [], assets: [],
     };
     state.packages.push(pkg);
     ui.activePackageId = pkg.id;
+    ui.activeTab = 'scope';
     commit();
-    toast(`Package “${name}” added`);
+    toast(`Package “${name}” added. Pick a scope template to fill its checklist.`);
+    scrollTo('detailedSection');
   },
   'remove-package': () => {
     const pkg = activePkg();

@@ -9,7 +9,7 @@
   --brand-600: 206 51 48; --brand-700: 172 43 40; --brand-800: 137 34 32; --brand-900: 103 26 24;
 }
 
-body { background-color: #f4f5f7; }
+body { background-color: #e9ecf2; }
 
 ::-webkit-scrollbar { height: 6px; width: 6px; }
 ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -37,3 +37,37 @@ body { background-color: #f4f5f7; }
 .drag-handle:active { cursor: grabbing; }
 .sortable-ghost { opacity: 0.4; border: 2px dashed rgb(var(--brand-500)) !important; }
 .preline { white-space: pre-line; }
+
+/* ---- Section boards & dividers ---- */
+.board {
+  background: #fff;
+  border: 1px solid rgb(203 213 225);
+  border-top: 5px solid rgb(var(--brand));
+  border-radius: 1rem;
+  box-shadow: 0 6px 18px -6px rgb(15 23 42 / 0.18);
+  overflow: hidden;
+}
+.board-head {
+  background: rgb(var(--brand-50));
+  border-bottom: 2px solid rgb(var(--brand-100));
+}
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(71 85 105);
+  margin-bottom: -1.5rem; /* sits snug above its board */
+}
+.section-label::before { content: ''; width: 0.55rem; height: 0.55rem; border-radius: 9999px; background: rgb(var(--brand)); }
+.section-label::after { content: ''; flex: 1; height: 2px; background: linear-gradient(to right, rgb(203 213 225), transparent); }
+
+/* Top summary cards get the same accent so they read as a board of their own */
+#kpiCardsContainer > div {
+  border: 1px solid rgb(203 213 225);
+  border-top: 4px solid rgb(var(--brand));
+  box-shadow: 0 4px 12px -4px rgb(15 23 42 / 0.15);
+}

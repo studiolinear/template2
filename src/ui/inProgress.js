@@ -46,7 +46,7 @@ export function renderInProgress() {
               <div class="${pkg.status === 'waiting' ? 'bg-amber-500' : 'bg-blue-600'} h-full rounded-full transition-all duration-500" style="width:${pkg.percentage}%"></div>
             </div>
           </div>
-          <ul class="px-4 py-2 divide-y divide-slate-100 flex-1">${items || '<li class="py-3 text-xs text-slate-400">No scope items yet.</li>'}</ul>
+          <ul class="px-4 py-2 divide-y divide-slate-100 flex-1">${items || `<li class="py-3 text-xs text-slate-400">No scope items yet.${admin ? ' Open the package and apply a scope template.' : ''}</li>`}</ul>
           <div class="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px]">
             <span class="text-slate-500 font-medium">${done} of ${pkg.scope.length} deliverables complete</span>
             <button data-action="goto-package" data-id="${esc(pkg.id)}" class="font-bold text-brand hover:underline">Open details</button>
